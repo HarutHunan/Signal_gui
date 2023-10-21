@@ -39,7 +39,6 @@ class GraphFrame(tk.Frame):
         # self.a.set_xlim(np.min(self.range), np.max(self.range))
 
         self.canvas = FigureCanvasTkAgg(self.fig, self)
-        print(self.canvas.get_width_height())
         self.canvas.get_tk_widget().pack(padx=(1, 1), pady=(2, 2))
         _Toolbar = tk.Frame(self)
         _Toolbar.pack(side=tk.TOP, fill=tk.BOTH)
