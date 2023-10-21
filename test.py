@@ -1,3 +1,11 @@
+# from app import App
+from comp import *
+import tkinter as tk
+from tkinter import ttk
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,38 +14,9 @@ class Signal():
     def __init__(self, data):
         self.data = data
         self.Signal1 = np.array([data[0]])
+        print(self.Signal1.shape)
         self.Signal2 = np.array([data[1]])
-        self.filopt = None
-
-    def Setfilter(self,filopt):
-        n = self.Signal1.shape[1]
-        if filopt == "Прямоугольное окно":
-            self.A = 1
-        elif filopt == "Треугольное окно Бартлетта":
-            self.A = (n - 2 * np.abs(np.arange(1,n+1) - n/2)) / n
-        elif filopt == "Синус окнo":
-            self.A = np.sin(np.arange(1,n+1) * np.pi/n)
-        elif filopt == "Oкно Ханна":
-            self.A = 0.5 * (1-np.cos(np.arange(1,n+1) * 2 * np.pi/n))
-        elif filopt == "Окно Хемминга":
-            self.A = 0.54 - 0.46*np.cos(np.arange(1,n+1) * 2 * np.pi/n)
-        elif filopt == "Окно Блекмена-Харриса":
-            blackman_harris = [0.3635819, 0.4891775, 0.1365995, 0.0106411]
-            x = np.arange(1, n + 1)
-            self.A = blackman_harris[0] \
-                - blackman_harris[1] * np.cos(x * 2 * np.pi / n) \
-                + blackman_harris[2] * np.cos(x * 4 * np.pi / n) \
-                - blackman_harris[3] * np.cos(x * 6 * np.pi / n)
-        elif filopt == "Окно Наталла":
-            blackman_harris = [0.355768, 0.487396, 0.144232, 0.012604]
-            x = np.arange(1, n + 1)
-            self.A = blackman_harris[0] \
-                - blackman_harris[1] * np.cos(x * 2 * np.pi / n) \
-                + blackman_harris[2] * np.cos(x * 4 * np.pi / n) \
-                + blackman_harris[3] * np.cos(x * 6 * np.pi / n)
-        else:
-            raise Exception("Wrong value passed to filter")
-        # print(filopt, self.A)
+        print(self.Signal2.shape)
 
     def Process(self):
         # Сравниваем размеры сигналов
@@ -50,22 +29,20 @@ class Signal():
         n = self.Signal1.shape[1]
 
         # Создаем аподизирующий фильтр Блекмена-Харриса
-
-        # blackman_harris = [0.3635819, 0.4891775, 0.1365995, 0.0106411]
-        # x = np.arange(1, n + 1)
-        # A = blackman_harris[0] \
-        #     - blackman_harris[1] * np.cos(x * 2 * np.pi / n) \
-        #     + blackman_harris[2] * np.cos(x * 4 * np.pi / n) \
-        #     - blackman_harris[3] * np.cos(x * 6 * np.pi / n)
-
+        blackman_harris = [0.3635819, 0.4891775, 0.1365995, 0.0106411]
+        x = np.arange(1, n + 1)
+        A = blackman_harris[0] \
+            - blackman_harris[1] * np.cos(x * 2 * np.pi / n) \
+            + blackman_harris[2] * np.cos(x * 4 * np.pi / n) \
+            - blackman_harris[3] * np.cos(x * 6 * np.pi / n)
         # print("A:  ", A)
         # print(A.shape)
         # plt.plot(x, A)
         # plt.show()
 
         # Вычитание срееднего и апподизачия  сигнала
-        self.Averaged1 = (self.Signal1 - np.mean(self.Signal1)) * self.A
-        self.Averaged2 = (self.Signal2 - np.mean(self.Signal2)) * self.A
+        self.Averaged1 = (self.Signal1 - np.mean(self.Signal1)) * A
+        self.Averaged2 = (self.Signal2 - np.mean(self.Signal2)) * A
 
         # print(Averaged1[0,:10])
         # print(Averaged1.shape)
@@ -116,13 +93,13 @@ class Signal():
         # print("cond  ", np.floor(0.1 * (w1m - (np.floor(sh1 / 2)))))
         # print(wc)
 
-        self.Filter1 = 1. / np.sqrt((1 + np.power(((np.arange(1, sh1 + 1) - w1m) / wc), (2 * k))))
-        self.Filter2 = 1. / np.sqrt((1 + np.power(((np.arange(1, sh2 + 1) - w2m) / wc), (2 * k))))
+        self.Filter1 = 1. / (1 + np.power(((np.arange(1, sh1 + 1) - w1m) / wc), (2 * k)))
+        self.Filter2 = 1. / (1 + np.power(((np.arange(1, sh2 + 1) - w2m) / wc), (2 * k)))
 
-        # print("Filter1:  ",self.Filter1[ :10])
-        # print(self.Filter1.shape)
-        # print("Filter2:  ",self.Filter2[ :10])
-        # print(self.Filter2.shape)
+        # print("Filter1:  ",Filter1[ :10])
+        # print(Filter1.shape)
+        # print("Filter2:  ",Filter2[ :10])
+        # print(Filter2.shape)
 
         # Наложение фльтра и вычисление обратного преобразования
         self.SignalFiltered1 = np.fft.ifft(np.fft.fftshift(self.Spectrum1[0] * self.Filter1))
@@ -161,7 +138,7 @@ def Compute_Phase(s1, s2):
     # Phi2 = np.zeros((1, sh2))
 
     Phi1 = s1.Get_Phase()
-    # print(Phi1)
+    print(Phi1)
     # Phase1, sp11, sp12 = Process(np.array([s1.data[0]]), np.array([s1.data[1]]))
 
     # ind1 = int(np.round(Phase1.shape[1] * 0.2)) - 1
@@ -195,3 +172,54 @@ def Compute_Phase(s1, s2):
     # return DeltaPhi, Phase1, Phase2, sp11, sp21
     return DeltaPhi
 
+
+
+
+def test():
+    # with open("test.LAn10", "rb") as f:
+    #     byte = f.read(1)
+    #     while byte != b"":
+    #         v = int(byte, 2)
+    #         print(v)
+
+    # infile = open('test.LAn10', 'rb')
+    # for chunk in read_in_chunks(infile):
+    #     print(chunk)
+
+    File_PathName1 = ["2023_03_16_101.LAn10"]
+    File_PathName2 = ["2023_03_16_110.LAn10"]
+
+    f = np.fromfile("2023_09_27__02_01.003.LAn10", dtype='uint16', offset=4)
+    f1 = np.zeros((2, int(f.shape[0] / 2)))
+    f1[0] = f[::2]
+    f1[1] = f[1::2]
+    print(f.shape)
+    print(f)
+    f = np.fromfile("2023_09_27__02_00.003.LAn10", dtype='uint16', offset=4)
+    f2 = np.zeros((2, int(f.shape[0] / 2)))
+    f2[0] = f[::2]
+    f2[1] = f[1::2]
+
+    Compute_Phase(f1, f2)
+
+    # n = 100000
+    # x = np.arange(n)
+    # plt.plot(x,f1[0,:n])
+    # plt.plot(x,f1[1])
+    # plt.show()
+    #
+    # a = np.zeros((5,10))+2
+    # b = np.zeros((5,10))+3
+    #
+    # z = np.vstack((np.array([a]),np.array([b])))
+    # print(z.shape)
+    # print(z)
+
+    # print("Myread11  ", f1[0].shape)
+    # print(f1[0,:10])
+    # print("Myread12  ", f1[1].shape)
+    # print(f1[1,:10])
+    # print("Myread21  ", f2[0].shape)
+    # print(f2[0, :10])
+    # print("Myread22  ", f2[1].shape)
+    # print(f2[1, :10])

@@ -26,7 +26,7 @@ class App(tk.Tk):
         super().__init__()
         self._started = 0
         self.title("Graph Illustration")
-        self.geometry("1024x720")
+        self.geometry("1600x800")
 
         self.files = []
 
@@ -49,27 +49,31 @@ class App(tk.Tk):
         sig = Signal(f1)
         self.files.append(sig)
 
-        if len(self.files) == 2:
-            dphi = Compute_Phase(self.files[0], self.files[1])
-            file = np.array([i.data for i in self.files])
-            self.graph1.draw_graph(np.array(file)[:, 0, 100000:200000])
-            self.graph2.draw_graph(np.vstack((np.absolute(self.files[0].Spectrum1), np.absolute(self.files[0].Spectrum1)))[:, 0:200])
-            self.graph3.draw_graph(np.vstack((self.files[0].Phase, self.files[1].Phase)))
-
-            c = 180 / np.pi
-            self.info_label1.config(text = self.info_label1.cget("text") + "    " + f"{self.files[0].Phi * c :.4f}")
-            self.info_label2.config(text = self.info_label2.cget("text") + "    " + f"{self.files[1].Phi * c:.4f}")
-            self.info_label3.config(text = self.info_label3.cget("text") + "    " + f"{dphi * c: .6f}")
 
 
     def set_filter(self):
-        pass
+        filter_option = self.option_menu1.get()
+        if len(self.files) == 2:
+            self.files[0].Setfilter(filter_option)
+            self.files[1].Setfilter(filter_option)
+            dphi = Compute_Phase(self.files[0], self.files[1])
+            file = np.array([i.data for i in self.files])
+            self.graph1.draw_graph(np.array(file)[0, :, 100000:200000])
+            self.graph1_2.draw_graph(np.array(file)[1, :, 100000:200000])
+            self.graph2.draw_graph(np.vstack((np.absolute(self.files[0].Spectrum1), np.absolute(self.files[0].Spectrum1)))[:, 0:200])
+            # self.graph3.draw_graph(np.vstack((self.files[0].Phase, self.files[1].Phase)))
+            self.graph3.draw_graph((self.files[0].Phase-self.files[1].Phase))
+
+            c = 180 / np.pi
+            self.info_label1.config(text=self.info_label1.cget("text") + "    " + f"{self.files[0].Phi * c :.4f}")
+            self.info_label2.config(text=self.info_label2.cget("text") + "    " + f"{self.files[1].Phi * c:.4f}")
+            self.info_label3.config(text=self.info_label3.cget("text") + "    " + f"{dphi * c: .6f}")
 
     def save_file(self):
         # Add your code to save the file here
-        np.savetxt("spectrum.txt", self.files[0].Spectrum1.T, delimiter=",")
-        np.savetxt("phase.txt", self.files[0].Phase.T, delimiter=",")
-        pass
+        np.savetxt("spectrum.txt", self.files[0].Spectrum1.T, delimiter=",", header="Значение спектра опорного сигнала\n\n", encoding="utf-8")
+        np.savetxt("phase.txt", self.files[0].Phase.T, delimiter=",", header="Значение фазы опорного сигнала\n\n", encoding="utf-8")
+
 
     def drawfront(self):
 
@@ -85,8 +89,12 @@ class App(tk.Tk):
 
         # Graph areas
         self.graph1 = GraphFrame(self.left_frame)
-        self.graph1.set_title("Графики сигналов")
+        self.graph1.set_title("Графики опорных сигналов")
         self.graph1.grid(row=0, column=0)
+
+        self.graph1_2 = GraphFrame(self.left_frame)
+        self.graph1_2.set_title("Графики объектных сигналов")
+        self.graph1_2.grid(row=0, column=1)
 
         self.graph2 = GraphFrame(self.left_frame)
         self.graph2.set_title("График спектра")
@@ -112,7 +120,7 @@ class App(tk.Tk):
                                          command=lambda: self.upload_file(self.upload_entry1))
         self.upload_button1.grid(row=1, column=0, pady=(5, 5), padx=(0, 5))
 
-        self.upload_entry1 = ttk.Entry(self.upload_section)
+        self.upload_entry1 = ttk.Entry(self.upload_section, width=30)
         self.upload_entry1.grid(row=1, column=1, pady=(5, 5), padx=(5, 5))
 
         self.upload_label = ttk.Label(self.upload_section, text="Загрузка объектных измерений", font=("TkDefaultFont", 11))
@@ -122,7 +130,7 @@ class App(tk.Tk):
                                          command=lambda: self.upload_file(self.upload_entry2))
         self.upload_button2.grid(row=3, column=0, pady=(5, 5), padx=(0, 5))
 
-        self.upload_entry2 = ttk.Entry(self.upload_section)
+        self.upload_entry2 = ttk.Entry(self.upload_section, width=30)
         self.upload_entry2.grid(row=3, column=1, pady=(5, 5), padx=(5, 5))
 
         # Option menus section
@@ -135,8 +143,11 @@ class App(tk.Tk):
         self.option_menu1_label = ttk.Label(self.option_menu_section, text="Выбор фильтра по предаточной функции", font=("TkDefaultFont", 11))
         self.option_menu1_label.grid(row=1, column=0, pady=(5, 5))
 
-        self.option_menu1 = ttk.Combobox(self.option_menu_section, values=["Фильтр Блекмена-Харриса", "Фильтр Баттерворта", "Фильтр Чебышева"], width=25)
-        self.option_menu1.current(0)
+        self.option_menu1 = ttk.Combobox(self.option_menu_section,
+                                         values=["Прямоугольное окно", "Треугольное окно Бартлетта", "Синус окнo",
+                                                 "Oкно Ханна", "Окно Хемминга", "Окно Блекмена-Харриса",
+                                                 "Окно Наталла"], width=25)
+        self.option_menu1.current(5)
         self.option_menu1.grid(row=2, column=0, pady=(5, 5), padx=(5, 5))
 
         self.option_menu2_label = ttk.Label(self.option_menu_section, text="Выбор типа фильтра", font=("TkDefaultFont", 11))
@@ -152,8 +163,7 @@ class App(tk.Tk):
         self.option_menu3 = ttk.Spinbox(self.option_menu_section, from_=1, to=10, increment=1)
         self.option_menu3.grid(row=6, column=0, pady=(5, 5), padx=(5, 5))
 
-        self.option_menu3_button = ttk.Button(self.option_menu_section, text="Настроить",
-                                              command=lambda: self.set_filter())
+        self.option_menu3_button = ttk.Button(self.option_menu_section, text="Настроить", command=lambda: self.set_filter())
         self.option_menu3_button.grid(row=6, column=1, padx=(0, 5), pady=(5, 5))
 
         # Info section
