@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 
 class GraphFrame(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
+        tk.Frame.__init__(self, master, padx=5)
         self.fig = None
         self.axes = None
         self.toolbar = None
@@ -20,7 +20,7 @@ class GraphFrame(tk.Frame):
         self.canvas = None
         # self.range = np.linspace(0, 10, 1000)
         # self.cord_frame = cord_frame
-        self.color = 'blue'
+        # self.color = 'blue'
         self.linewidth = 1
         self.style_list = ['solid', '-', '--', 'dashed', '-.', 'dashdot', ':', 'dotted']
         self.style = '-'
@@ -34,26 +34,35 @@ class GraphFrame(tk.Frame):
         """
         Приватный метод который задает конфигурации графика
         """
-        self.fig = Figure(figsize=(5, 2), dpi=100)
+        self.fig = Figure(figsize=(4.5, 4), dpi=100)
         self.axes = self.fig.add_subplot(111)
         # self.a.set_xlim(np.min(self.range), np.max(self.range))
 
         self.canvas = FigureCanvasTkAgg(self.fig, self)
-        self.canvas.get_tk_widget().pack(padx=(5, 5), pady=(5, 5))
+        print(self.canvas.get_width_height())
+        self.canvas.get_tk_widget().pack(padx=(1, 1), pady=(2, 2))
         _Toolbar = tk.Frame(self)
         _Toolbar.pack(side=tk.TOP, fill=tk.BOTH)
         self.canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.X)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.toolbar.pack(side=tk.LEFT, fill=tk.Y)
-        # self.canvas.mpl_connect('motion_notify_event', self._show_cords)
-        # self.a.set_xlabel(self.x_axis, fontsize=12)
-        # self.a.set_ylabel(self.y_axis, fontsize=12)
-
+        self.axes.set_xlabel(self.x_axis)
+        self.axes.set_ylabel(self.y_axis)
+        # plt.subplots_adjust(top=0.925,
+        #                     bottom=0.16,
+        #                     left=0.11,
+        #                     right=0.90,
+        #                     hspace=0.2,
+        #                     wspace=0.2)
+        plt.subplots_adjust(top = 1, bottom=0.1, hspace=0.8, wspace=1)
         if self.title is not None:
             self.axes.set_title(self.title)
-            print()
 
-
+    def set_axis(self,xl, yl):
+        self.x_axis = xl
+        self.y_axis = yl
+        self.axes.set_xlabel(self.x_axis)
+        self.axes.set_ylabel(self.y_axis)
     def draw_graph(self, files):
         """
         Метод который рисует графикии
@@ -69,8 +78,6 @@ class GraphFrame(tk.Frame):
         # print(files)
         for i in range(files.shape[0]):
             self.axes.plot(files[i], linewidth=self.linewidth, linestyle=self.style)
-            # self.ngraphs += 1
-            self.axes.set_title(self.title)
             self.canvas.draw()
 
     def set_title(self, value):

@@ -26,7 +26,7 @@ class App(tk.Tk):
         super().__init__()
         self._started = 0
         self.title("Graph Illustration")
-        self.geometry("1600x800")
+        self.geometry("1600x950")
 
         self.files = []
 
@@ -85,29 +85,32 @@ class App(tk.Tk):
 
         # Left part of the window
         self.left_frame = ttk.Frame(self, padding=(3, 3), relief="solid")
-        self.left_frame.grid(row=1, column=0, rowspan=3, padx=(3, 3), pady=(3, 3), sticky='nsew')
+        self.left_frame.grid(row=1, column=0, rowspan=3, padx=(1, 1), pady=(1, 1), sticky='nsew')
 
         # Graph areas
         self.graph1 = GraphFrame(self.left_frame)
         self.graph1.set_title("Графики опорных сигналов")
+        self.graph1.set_axis(xl = "Время,с", yl="Напряжение,В")
         self.graph1.grid(row=0, column=0)
 
         self.graph1_2 = GraphFrame(self.left_frame)
         self.graph1_2.set_title("Графики объектных сигналов")
-        self.graph1_2.grid(row=0, column=1)
+        self.graph1_2.set_axis(xl="Частота,Гц", yl="Амплитуда,В")
+        self.graph1_2.grid(row=0, column=2)
 
         self.graph2 = GraphFrame(self.left_frame)
         self.graph2.set_title("График спектра")
-        self.graph2.grid(row=1, column=0)
+        self.graph2.set_axis(xl="Время,с", yl="Напряжение,В")
+        self.graph2.grid(row=2, column=0)
 
-        #
         self.graph3 = GraphFrame(self.left_frame)
         self.graph3.set_title("График разности фаз")
-        self.graph3.grid(row=2, column=0)
+        self.graph3.set_axis(xl="Время,с", yl="Фаза,град.")
+        self.graph3.grid(row=2, column=2)
 
         # Right part of the window
         self.right_frame = ttk.Frame(self, padding=(3, 3), relief="solid")
-        self.right_frame.grid(row=1, column=1, padx=(5, 5), pady=(5, 5), sticky='nsew')
+        self.right_frame.grid(row=1, column=1, padx=(1, 1), pady=(1, 1), sticky='nsew')
 
         # Upload section
         self.upload_section = ttk.Frame(self.right_frame, padding=(5, 5))
@@ -135,7 +138,7 @@ class App(tk.Tk):
 
         # Option menus section
         self.option_menu_section = ttk.Frame(self.right_frame, padding=(5, 5))
-        self.option_menu_section.grid(row=1, column=0, padx=(5, 5), pady=(5, 5), sticky='nsew')
+        self.option_menu_section.grid(row=1, column=0, columnspan=2, padx=(5, 5), pady=(5, 5), sticky='nsew')
 
         self.option_menu1_label = ttk.Label(self.option_menu_section, text="Настройка сигнала", font=("TkDefaultFont", 12, "bold"))
         self.option_menu1_label.grid(row=0, column=0, pady=(5, 5))
@@ -203,8 +206,8 @@ class App(tk.Tk):
         # Make the frames expandable
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=0)
-        self.left_frame.grid_rowconfigure((1, 2, 3), weight=1)
+        # self.grid_columnconfigure(1, weight=0)
+        self.left_frame.grid_rowconfigure((0,1, 2, 3), weight=1)
         self.right_frame.grid_rowconfigure((1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), weight=1)
         self.right_frame.grid_columnconfigure((0,1), weight=1)
 
