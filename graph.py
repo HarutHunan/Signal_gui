@@ -45,17 +45,17 @@ class GraphFrame(tk.Frame):
         self.canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.X)
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.toolbar.pack(side=tk.LEFT, fill=tk.Y)
-        self.axes.set_xlabel(self.x_axis)
-        self.axes.set_ylabel(self.y_axis)
-        # plt.subplots_adjust(top=0.925,
-        #                     bottom=0.16,
-        #                     left=0.11,
-        #                     right=0.90,
-        #                     hspace=0.2,
-        #                     wspace=0.2)
+
         plt.subplots_adjust(top = 1, bottom=0.1, hspace=0.8, wspace=1)
         if self.title is not None:
             self.axes.set_title(self.title)
+
+        self.axes.set_xlabel(self.x_axis)
+        # print(self.x_axis)
+        self.axes.set_ylabel(self.y_axis)
+        # print(self.y_axis)
+        self.fig.tight_layout(pad = 2.5)
+
 
     def set_axis(self,xl, yl):
         self.x_axis = xl

@@ -97,7 +97,7 @@ class App(tk.Tk):
         self.graph1_2 = GraphFrame(self.left_frame)
         self.graph1_2.set_title("Графики объектных измерений")
         self.graph1_2.set_axis(xl="Частота,Гц", yl="Амплитуда,В")
-        self.graph1_2.grid(row=0, column=2)
+        self.graph1_2.grid(row=0, column=3)
 
         self.graph2 = GraphFrame(self.left_frame)
         self.graph2.set_title("График спектра")
@@ -107,7 +107,7 @@ class App(tk.Tk):
         self.graph3 = GraphFrame(self.left_frame)
         self.graph3.set_title("График разности фаз")
         self.graph3.set_axis(xl="Время,с", yl="Фаза,град.")
-        self.graph3.grid(row=2, column=2)
+        self.graph3.grid(row=2, column=3)
 
         # Right part of the window
         self.right_frame = ttk.Frame(self, padding=(3, 3), relief="solid")
