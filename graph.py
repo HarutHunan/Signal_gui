@@ -3,7 +3,6 @@ from tkinter import ttk
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.backend_bases import MouseEvent
 
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -16,11 +15,7 @@ class GraphFrame(tk.Frame):
         self.fig = None
         self.axes = None
         self.toolbar = None
-        # self.func = None
         self.canvas = None
-        # self.range = np.linspace(0, 10, 1000)
-        # self.cord_frame = cord_frame
-        # self.color = 'blue'
         self.linewidth = 1
         self.style_list = ['solid', '-', '--', 'dashed', '-.', 'dashdot', ':', 'dotted']
         self.style = '-'
@@ -36,7 +31,6 @@ class GraphFrame(tk.Frame):
         """
         self.fig = Figure(figsize=(4.5, 4), dpi=100)
         self.axes = self.fig.add_subplot(111)
-        # self.a.set_xlim(np.min(self.range), np.max(self.range))
 
         self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.get_tk_widget().pack(padx=(1, 1), pady=(2, 2))
@@ -51,13 +45,16 @@ class GraphFrame(tk.Frame):
             self.axes.set_title(self.title)
 
         self.axes.set_xlabel(self.x_axis)
-        # print(self.x_axis)
         self.axes.set_ylabel(self.y_axis)
-        # print(self.y_axis)
         self.fig.tight_layout(pad = 2.5)
 
 
     def set_axis(self,xl, yl):
+        '''
+        Подпись осей
+        :param xl: название оси х
+        :param yl: название оси у
+        '''
         self.x_axis = xl
         self.y_axis = yl
         self.axes.set_xlabel(self.x_axis)
@@ -69,12 +66,7 @@ class GraphFrame(tk.Frame):
         self.canvas.get_tk_widget().pack_forget()
         self.toolbar.pack_forget()
         self._start()
-        # if(self.ngraphs > 2):
-        #     self.canvas.get_tk_widget().pack_forget()
-        #     self.toolbar.pack_forget()
-        #     self._start()
-        # print(files.shape)
-        # print(files)
+
         for i in range(files.shape[0]):
             self.axes.plot(files[i], linewidth=self.linewidth, linestyle=self.style)
             self.canvas.draw()
@@ -82,30 +74,6 @@ class GraphFrame(tk.Frame):
     def set_title(self, value):
         self.title = value
         self.axes.set_title(self.title)
-
-    # def _show_cords(self, event):
-    #     """
-    #     Приватный метод для координат мышки
-    #     :param event: Параметры мышки
-    #     """
-    #     if event.inaxes and event.inaxes.get_navigate():
-    #         try:
-    #             s = event.inaxes.format_coord(event.xdata, event.ydata)
-    #         except (ValueError, OverflowError):
-    #             pass
-    #         else:
-    #             s = s.rstrip()
-    #             artists = [a for a in event.inaxes._mouseover_set
-    #                        if a.contains(event)[0] and a.get_visible()]
-    #             if artists:
-    #                 a = matplotlib.cbook._topmost_artist(artists)
-    #                 if a is not event.inaxes.patch:
-    #                     data = a.get_cursor_data(event)
-    #                     if data is not None:
-    #                         data_str = a.format_cursor_data(data).rstrip()
-    #                         if data_str:
-    #                             s = s + '\n' + data_str
-    #
 
 class NavigationToolbar(NavigationToolbar2Tk):
     def __init__(self, canvas, window):

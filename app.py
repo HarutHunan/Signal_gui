@@ -7,11 +7,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 import matplotlib
-import matplotlib.pyplot as plt
-
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
+
 
 
 class App(tk.Tk):
@@ -25,26 +22,32 @@ class App(tk.Tk):
         """
         super().__init__()
         self._started = 0
-        self.title("Graph Illustration")
+        self.title("Основное окно")
         self.geometry("1600x950")
 
         self.files = []
 
     def upload_file(self, entry):
+        '''
+        Функция для считывания файлов и сохранения в программе
+        :param entry: окно, в которой будет отображаться путь к файлу
+        '''
+
         self.filename = filedialog.askopenfilename(initialdir="D:/Pythongui", title="Выберите файл",
                                                    filetypes=[('LAn10 (binary) files', '*.LAn10')])
         print(self.filename)
         entry.delete(0, tk.END)
         entry.insert(0, self.filename)
 
-        # offset - начиная с какого байта читать файл, dtype - как интерпретировать прочитанные строки.
-        # Размер uint16 - 2 байта, поэтому чтение файла происходит 2 байтовыми блоками.
+        '''
+         offset - начиная с какого байта читать файл, dtype - как интерпретировать прочитанные строки.
+         Размер uint16 - 2 байта, поэтому чтение файла происходит 2 байтовыми блоками.
+        '''
 
         f = np.fromfile(self.filename, dtype='uint16', offset=4)
         f1 = np.zeros((2, int(f.shape[0] / 2)))
         f1[0] = f[::2]
         f1[1] = f[1::2]
-        # self.files.append(f1)
 
         sig = Signal(f1)
         self.files.append(sig)
@@ -52,6 +55,9 @@ class App(tk.Tk):
 
 
     def set_filter(self):
+        '''
+        Настройка фильтра, обработка файлов, построение графиков
+        '''
         filter_option = self.option_menu1.get()
         if len(self.files) == 2:
             self.files[0].Setfilter(filter_option)
@@ -62,7 +68,6 @@ class App(tk.Tk):
             self.graph1_2.draw_graph(np.array(file)[1, :, 100000:200000])
             sp = self.files[0].Spectrum1.shape[1]
             self.graph2.draw_graph(np.vstack((np.absolute(self.files[0].Spectrum1), np.absolute(self.files[0].Spectrum1)))[:, :sp])
-            # self.graph3.draw_graph(np.vstack((self.files[0].Phase, self.files[1].Phase)))
             self.graph3.draw_graph((self.files[0].Phase-self.files[1].Phase))
 
             c = 180 / np.pi
@@ -71,13 +76,18 @@ class App(tk.Tk):
             self.info_label3.config(text=self.info_label3.cget("text") + "    " + f"{dphi * c: .6f}")
 
     def save_file(self):
-        # Add your code to save the file here
+        '''
+        Функция для сохранения значений в формате txt
+        '''
         np.savetxt("spectrum1.txt", self.files[0].Spectrum1.T, delimiter=",", header="Значение спектра референтного сигнала\n\n", encoding="utf-8")
         np.savetxt("phase1.txt", self.files[0].Phase.T, delimiter=",", header="Значение фазы референтного сигнала\n\n", encoding="utf-8")
         np.savetxt("spectrum2.txt", self.files[1].Spectrum1.T, delimiter=",", header="Значение спектра объектного сигнала\n\n", encoding="utf-8")
         np.savetxt("phase2.txt", self.files[1].Phase.T, delimiter=",", header="Значение фазы объектного сигнала\n\n", encoding="utf-8")
-    def drawfront(self):
 
+    def drawfront(self):
+        '''
+        Функция, создающая окно
+        '''
         self.header = ttk.Frame(self, padding=(3, 3), relief='solid')
         self.header.grid(row=0, column=0, columnspan=2, pady=(3, 3), sticky='nsew')
 
@@ -162,19 +172,6 @@ class App(tk.Tk):
         self.option_menu1.current(5)
         self.option_menu1.grid(row=2, column=0, pady=(5, 5), padx=(5, 5))
 
-        # self.option_menu2_label = ttk.Label(self.option_menu_section, text="Выбор типа фильтра", font=("TkDefaultFont", 11))
-        # self.option_menu2_label.grid(row=3, column=0, pady=(5, 5))
-        #
-        # self.option_menu2 = ttk.Combobox(self.option_menu_section, values=["Фильтр низких частот", "Фильтр высоких частот"], width=25)
-        # self.option_menu2.current(0)
-        # self.option_menu2.grid(row=4, column=0, pady=(5, 5), padx=(5,5))
-        #
-        # self.option_menu3_label = ttk.Label(self.option_menu_section, text="Выбор порядка фильтра", font=("TkDefaultFont", 11))
-        # self.option_menu3_label.grid(row=5, column=0, pady=(5, 5))
-        #
-        # self.option_menu3 = ttk.Spinbox(self.option_menu_section, from_=1, to=10, increment=1)
-        # self.option_menu3.grid(row=6, column=0, pady=(5, 5), padx=(5, 5))
-
         self.option_menu3_button = ttk.Button(self.option_menu_section, text="Настроить", command=lambda: self.set_filter())
         self.option_menu3_button.grid(row=2, column=1, pady=(5, 0))
 
@@ -184,26 +181,21 @@ class App(tk.Tk):
 
         self.info_label1 = ttk.Label(self.info_section, text="Угол опорного сигнала: ", font=("TkDefaultFont", 11))
         self.info_label1.grid(row=0, column=0, padx=(7, 7), pady=(7, 7))
-        # self.info_label1.pack(side = tk.LEFT)
         self.info_value1 = ttk.Label(self.info_section, text="", font=("TkDefaultFont", 11))
-        # self.info_value1.grid(row=0, column=1, pady=(3, 3), padx=(0, 3))
 
         self.info_label2 = ttk.Label(self.info_section, text="Угол объектного сигнала: ", font=("TkDefaultFont", 11))
         self.info_label2.grid(row=1, column=0, padx=(7, 7), pady=(7, 7))
         self.info_value2 = ttk.Label(self.info_section, text="", font=("TkDefaultFont", 11))
-        # self.info_value2.grid(row=1, column=1, pady=(3, 3), padx=(0, 3))
 
         self.info_label3 = ttk.Label(self.info_section, text="Разность фаз: ", font=("TkDefaultFont", 11))
         self.info_label3.grid(row=2, column=0, padx=(7, 7), pady=(7, 7))
         self.info_value3 = ttk.Label(self.info_section, text="", font=("TkDefaultFont", 11))
-        # self.info_value3.grid(row=2, column=1, pady=(3, 3))
 
         # Save button section
         temp_opt_section = ttk.Frame(self.right_frame, padding=(5, 5))
         temp_opt_section.grid(row=8, column=0, columnspan=3, padx=(5, 5), pady=(5, 5), sticky='ew')
 
         self.save_label1 = ttk.Label(temp_opt_section, text="Сохранить", font=("TkDefaultFont", 11, "bold"))
-        # self.save_label1.grid(row=0, column=0, padx=(5, 5), pady=(5, 5))
         self.save_label1.pack()
 
         self.save_section = ttk.Frame(self.right_frame)

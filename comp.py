@@ -1,15 +1,26 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class Signal():
+    '''
+    Класс для сохранения данных и расчетов
+    '''
     def __init__(self, data):
+        '''
+        Конструктор класса
+        :param data: данные файла в виде numpy array
+        '''
         self.data = data
         self.Signal1 = np.array([data[0]])
         self.Signal2 = np.array([data[1]])
         self.filopt = None
 
     def Setfilter(self,filopt):
+        '''
+        Настройка фильтра
+        :param filopt: Тип фильтра
+        '''
+
         n = self.Signal1.shape[1]
         if filopt == "Прямоугольное окно":
             self.A = 1
@@ -37,9 +48,14 @@ class Signal():
                 + blackman_harris[3] * np.cos(x * 6 * np.pi / n)
         else:
             raise Exception("Wrong value passed to filter")
-        # print(filopt, self.A)
+
 
     def Process(self):
+        '''
+        Обработка данных
+        Вычисление спектра, применение фильтра, расчет фазы
+        '''
+
         # Сравниваем размеры сигналов
         try:
             if self.Signal1.shape[1] != self.Signal2.shape[1]:
@@ -49,14 +65,6 @@ class Signal():
 
         n = self.Signal1.shape[1]
 
-        # Создаем аподизирующий фильтр Блекмена-Харриса
-
-        # blackman_harris = [0.3635819, 0.4891775, 0.1365995, 0.0106411]
-        # x = np.arange(1, n + 1)
-        # A = blackman_harris[0] \
-        #     - blackman_harris[1] * np.cos(x * 2 * np.pi / n) \
-        #     + blackman_harris[2] * np.cos(x * 4 * np.pi / n) \
-        #     - blackman_harris[3] * np.cos(x * 6 * np.pi / n)
 
         # print("A:  ", A)
         # print(A.shape)
@@ -143,6 +151,10 @@ class Signal():
         # return np.array([Phase]), np.absolute(Spectrum1), np.absolute(Spectrum2)
 
     def Get_Phase(self):
+        '''
+        Считает фазу сигнала
+        '''
+
         self.Process()
         ind1 = int(np.round(self.Phase.shape[1] * 0.2)) - 1
         ind2 = int(np.round(self.Phase.shape[1] - (self.Phase.shape[1] * 0.2)))
@@ -151,47 +163,16 @@ class Signal():
         return self.Phi
 
 def Compute_Phase(s1, s2):
-    sh1 = np.array(s1.data).shape[1]
-    sh2 = np.array(s2.data).shape[1]
-
-    # Phase1 = np.zeros((1, sh1))
-    #
-    # Phase2 = np.zeros((1, sh2))
-    # Phi1 = np.zeros((1, sh1))
-    # Phi2 = np.zeros((1, sh2))
+    '''
+    Считает разницу фаз двух сигналов
+    :param s1: Первый файл
+    :param s2: Второй файл
+    '''
 
     Phi1 = s1.Get_Phase()
-    # print(Phi1)
-    # Phase1, sp11, sp12 = Process(np.array([s1.data[0]]), np.array([s1.data[1]]))
-
-    # ind1 = int(np.round(Phase1.shape[1] * 0.2)) - 1
-    # ind2 = int(np.round(Phase1.shape[1] - (Phase1.shape[1] * 0.2)))
-
-    # print("ind1_1: ", ind1)
-    # print("ind1_2: ", ind2)
-
-    # Phi1 = np.mean(Phase1[0, ind1: ind2])
-    # print("Phi1", Phi1 * 180 / np.pi)
-
-    # Phase2, sp21, sp22 = Process(np.array([s2[0]]), np.array([s2[1]]))
     Phi2 = s2.Get_Phase()
-    # ind1 = int(np.round(Phase2.shape[1] * 0.2)) - 1
-    # ind2 = int(np.round(Phase2.shape[1] - (Phase2.shape[1] * 0.2)))
-
-    # print("ind2_1: ", ind1)
-    # print("ind2_2: ", ind2)
-
-    # Phi2 = np.mean(Phase2[0, ind1: ind2])
-    # print("Phi2", Phi2 * 180 / np.pi)
-    # print("phi1: ", Phi1)
-    # print("phi2: ", Phi2)
 
     DeltaPhi = (np.mean(Phi2) - np.mean(Phi1)) / 2
-    #
-    # print("mean_phi1: ", np.mean(Phi1))
-    # print("mean_phi2: ", np.mean(Phi2))
-
     print(DeltaPhi * 180 / np.pi)
-    # return DeltaPhi, Phase1, Phase2, sp11, sp21
     return DeltaPhi
 

@@ -1,4 +1,4 @@
-# from app import App
+
 from comp import *
 import tkinter as tk
 from tkinter import ttk
